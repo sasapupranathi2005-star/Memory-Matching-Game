@@ -1,0 +1,459 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --bg: #080b16;
+    --panel: #11172a;
+    --card: #171f38;
+    --purple: #8b5cf6;
+    --cyan: #22d3ee;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    min-height: 100vh;
+    padding: 30px 18px;
+    font-family: 'Inter', Arial, sans-serif;
+    color: #f8fafc;
+    background:
+        radial-gradient(ellipse at 15% 15%, #312e8155, transparent 40%),
+        radial-gradient(ellipse at 85% 85%, #0891b255, transparent 40%),
+        linear-gradient(135deg, #050816, #0b1020 55%, #080b18);
+}
+
+
+.game-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 25px;
+    border-bottom: 1px solid #ffffff12;
+}
+
+.logo {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--cyan);
+}
+
+.game-label,
+.eyebrow {
+    color: var(--purple);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.game-label {
+    padding: 8px 12px;
+    border: 1px solid #8b5cf640;
+    border-radius: 20px;
+    background: #8b5cf610;
+}
+
+.intro {
+    text-align: center;
+    padding: 48px 0 30px;
+}
+
+.intro .eyebrow {
+    margin-bottom: 14px;
+}
+
+h1 {
+    font-size: clamp(36px, 7vw, 58px);
+    font-weight: 800;
+    letter-spacing: -2px;
+}
+
+h1 span {
+    color: var(--purple);
+    text-shadow: 0 0 30px #8b5cf655;
+}
+
+.description {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.stat-card {
+    min-width: 0;
+    padding: 18px 12px;
+    text-align: center;
+    background: #11172ad9;
+    border: 1px solid #ffffff12;
+    border-radius: 16px;
+}
+
+
+.stat-label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.stat-card strong {
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.game-panel {
+    padding: 25px;
+    border: 1px solid #8b5cf633;
+    border-radius: 22px;
+    background: linear-gradient(145deg, #141b30, #0d1222);
+    box-shadow: 0 20px 70px #00000030;
+}
+
+.panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.panel-heading h2 {
+    font-size: 17px;
+}
+
+#status {
+    color: var(--cyan);
+    font-size: 12px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.memory-card {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border: 1px solid #8b5cf655;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #202b4b, #121a30);
+    color: white;
+    font-size: clamp(25px, 5vw, 40px);
+    cursor: pointer;
+    transition: transform 0.25s, border-color 0.25s,
+                background 0.25s, box-shadow 0.25s;
+    transform-style: preserve-3d;
+}
+
+.memory-card::before {
+    content: "?";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--purple);
+    font-size: 34px;
+    font-weight: 800;
+    transition: opacity 0.2s;
+}
+
+.memory-card .card-symbol {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.memory-card:hover:not(.flipped):not(.matched) {
+    transform: translateY(-4px);
+    border-color: var(--cyan);
+    box-shadow: 0 8px 25px #22d3ee18;
+}
+
+.memory-card.flipped,
+.memory-card.matched {
+    background: #22264b;
+    border-color: var(--cyan);
+    box-shadow: 0 0 20px #22d3ee18;
+    cursor: default;
+}
+
+.memory-card.flipped::before,
+.memory-card.matched::before {
+    opacity: 0;
+}
+
+.memory-card.flipped .card-symbol,
+.memory-card.matched .card-symbol {
+    opacity: 1;
+}
+
+.memory-card.matched {
+    border-color: #34d399;
+    background: #10352f;
+}
+
+.memory-card:disabled {
+    opacity: 1;
+}
+
+.game-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.restart-btn {
+    padding: 13px 23px;
+    border: 1px solid #8b5cf6;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 5px 22px #8b5cf625;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.restart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px #8b5cf650;
+}
+
+/* Next Game Button Styles */
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.next-game {
+    padding: 13px 28px;
+    border: 1px solid #a47aff;
+    border-radius: 30px;
+    background: #30204f;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.next-game:hover {
+    background: #49316f;
+}
+
+.next-game[hidden] {
+    display: none;
+}
+
+.footer-text {
+    padding: 25px 0 5px;
+    color: #64748b;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #030611d9;
+    backdrop-filter: blur(8px);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 380px;
+    padding: 38px 25px;
+    text-align: center;
+    background: var(--panel);
+    border: 1px solid #8b5cf655;
+    border-radius: 24px;
+    box-shadow: 0 0 60px #8b5cf620;
+}
+
+.trophy {
+    margin-bottom: 20px;
+    font-size: 55px;
+}
+
+.modal-content h2 {
+    margin-top: 12px;
+    font-size: 26px;
+}
+
+#finalStats {
+    margin: 15px 0 25px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+@media (max-width: 520px) {
+    body {
+        padding: 18px 12px;
+    }
+
+    .header {
+        gap: 10px;
+    }
+
+    .logo {
+        font-size: 13px;
+        letter-spacing: 1px;
+    }
+
+    .game-label {
+        font-size: 9px;
+        padding: 7px 9px;
+    }
+
+    .intro {
+        padding: 38px 0 25px;
+    }
+
+    .stats {
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 14px 5px;
+    }
+
+    .stat-card strong {
+        font-size: 20px;
+    }
+
+    .game-panel {
+        padding: 16px 12px;
+    }
+
+    .card-grid {
+        gap: 9px;
+    }
+
+    .memory-card {
+        border-radius: 11px;
+    }
+
+    .panel-heading h2 {
+        font-size: 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+
+
+/* Difficulty Selector */
+.difficulty-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 16px;
+    padding: 16px;
+    background: #11172a;
+    border: 1px solid #8b5cf633;
+    border-radius: 14px;
+}
+
+.difficulty-section label {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+#difficulty {
+    padding: 10px 14px;
+    color: #f8fafc;
+    background: #202b4b;
+    border: 1px solid #8b5cf6;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+#difficulty:focus {
+    box-shadow: 0 0 0 3px #8b5cf633;
+}
+
+/* Personal Best Card */
+.best-score {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding: 16px 20px;
+    background: linear-gradient(100deg, #251b43, #11172a);
+    border: 1px solid #fbbf2433;
+    border-radius: 14px;
+}
+
+.best-score span {
+    color: #fbbf24;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.best-score strong {
+    color: #f8fafc;
+    font-size: 14px;
+}
+
+@media (max-width: 430px) {
+    .difficulty-section {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .best-score {
+        padding: 14px;
+    }
+}
+

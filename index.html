@@ -1,0 +1,603 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Match Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: Inter, sans-serif;
+    background: #080b16;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 700px;
+    padding: 28px;
+    border: 1px solid #293250;
+    border-radius: 24px;
+    background: #11172a;
+    box-shadow: 0 20px 60px #0008;
+}
+
+.header { text-align: center; margin-bottom: 22px; }
+
+.header h1 {
+    font-size: clamp(28px, 5vw, 40px);
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #a78bfa, #22d3ee);
+    background-clip: text;
+    color: transparent;
+}
+
+.header p { color: #a5b0cc; font-size: 14px; }
+
+.coins {
+    display: inline-block;
+    background: #30264b;
+    border: 1px solid #8b6aef;
+    border-radius: 30px;
+    color: #facc15;
+    font-weight: 800;
+    padding: 11px 18px;
+    margin: 8px 0 20px;
+}
+
+.start-screen { text-align: center; padding: 18px 0 28px; }
+
+.hero-icon {
+    font-size: 76px;
+    margin: 8px 0 20px;
+    filter: drop-shadow(0 0 20px #8b5cf6);
+}
+
+.start-screen h2 { font-size: 25px; margin-bottom: 10px; }
+.start-screen p { color: #a5b0cc; line-height: 1.7; margin-bottom: 20px; }
+
+.difficulty-section { text-align: left; margin: 18px 0; }
+.difficulty-section label {
+    display: block;
+    color: #a5b0cc;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+select {
+    width: 100%;
+    background: #171f38;
+    color: white;
+    border: 1px solid #343e5d;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 14px;
+}
+
+button { font-family: inherit; }
+
+.primary-btn, .secondary-btn, .next-btn {
+    border: 0;
+    border-radius: 12px;
+    padding: 14px 22px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.primary-btn {
+    color: white;
+    background: linear-gradient(100deg, #7c3aed, #6d5dfc);
+    box-shadow: 0 8px 25px #7c3aed40;
+}
+
+.next-btn { background: #22d3ee; color: #08111e; }
+.secondary-btn { background: #293450; color: white; }
+
+.primary-btn:hover, .secondary-btn:hover, .next-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.full-btn { width: 100%; }
+
+.game-screen[hidden], .start-screen[hidden], .modal[hidden] {
+    display: none !important;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+    margin-bottom: 18px;
+}
+
+.stat-box {
+    text-align: center;
+    background: #171f38;
+    border: 1px solid #293450;
+    border-radius: 12px;
+    padding: 13px 4px;
+}
+
+.stat-box p { font-size: 10px; color: #a5b0cc; margin-bottom: 8px; }
+.stat-box h2 { color: #22d3ee; font-size: 19px; }
+
+.best-score {
+    text-align: center;
+    color: #facc15;
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.memory-card {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #202b4b, #171f38);
+    border: 1px solid #394566;
+    border-radius: 13px;
+    color: #a78bfa;
+    font-size: clamp(24px, 5vw, 36px);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.memory-card:hover:not(:disabled) {
+    transform: translateY(-3px);
+    border-color: #22d3ee;
+}
+
+.memory-card.flipped { background: #26375a; border-color: #22d3ee; }
+.memory-card.matched { background: #153c3b; border-color: #34d399; }
+.memory-card:disabled { cursor: default; }
+
+.message {
+    text-align: center;
+    color: #a5b0cc;
+    font-size: 13px;
+    margin-top: 16px;
+    min-height: 20px;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    background: #030611df;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+    padding: 30px 24px;
+    background: #171f38;
+    border: 1px solid #6551a7;
+    border-radius: 22px;
+    box-shadow: 0 20px 70px #0009;
+}
+
+.result-icon { font-size: 62px; margin-bottom: 12px; }
+.modal-card h2 { font-size: 27px; margin-bottom: 10px; }
+.modal-card p { color: #c0c8df; line-height: 1.7; margin-bottom: 15px; }
+.reward { color: #facc15 !important; font-size: 19px; font-weight: 800; }
+.modal-actions { display: grid; gap: 10px; margin-top: 20px; }
+
+@media (max-width: 480px) {
+    .game-container { padding: 17px; }
+    .stats { gap: 5px; }
+    .stat-box { padding: 12px 2px; }
+    .stat-box p { font-size: 9px; }
+    .stat-box h2 { font-size: 16px; }
+    .game-board { gap: 7px; }
+}
+
+
+/* Coins earning animation */
+.coins {
+    animation: coinGlow 2s infinite alternate;
+}
+
+@keyframes coinGlow {
+    from {
+        box-shadow: 0 0 5px #facc1530;
+    }
+    to {
+        box-shadow: 0 0 18px #facc1580;
+    }
+}
+
+.coin-popup {
+    position: fixed;
+    top: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    color: #facc15;
+    background: #25203c;
+    border: 1px solid #facc15;
+    border-radius: 30px;
+    padding: 12px 22px;
+    font-size: 22px;
+    font-weight: 800;
+    box-shadow: 0 0 25px #facc1540;
+    animation: coinPop 1.2s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes coinPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 20px) scale(0.6);
+    }
+    25% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1.15);
+    }
+    75% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -55px) scale(1);
+    }
+}
+
+</style>
+</head>
+
+<body>
+<main class="game-container">
+
+    <header class="header">
+        <h1>🧠 Memory Match</h1>
+        <p>Match the pairs. Collect coins. Beat your best score!</p>
+        <div class="coins">🪙 Coins: <span id="coins">0</span></div>
+    </header>
+
+    <!-- START SCREEN -->
+    <section class="start-screen" id="startScreen">
+        <div class="hero-icon">🎮</div>
+        <h2>Ready to Play?</h2>
+        <p>Remember the emojis, match every pair and earn coins!</p>
+
+        <div class="difficulty-section">
+            <label for="difficulty">Choose Difficulty</label>
+            <select id="difficulty">
+                <option value="easy">Easy — 60 Seconds</option>
+                <option value="medium">Medium — 90 Seconds</option>
+                <option value="hard">Hard — 120 Seconds</option>
+            </select>
+        </div>
+
+        <button class="primary-btn full-btn" id="startButton">
+            ▶ START GAME
+        </button>
+    </section>
+
+    <!-- GAME SCREEN: hidden until Start Game is clicked -->
+    <section class="game-screen" id="gameScreen" hidden>
+        <div class="stats">
+            <div class="stat-box"><p>TIME</p><h2 id="time">60</h2></div>
+            <div class="stat-box"><p>MOVES</p><h2 id="moves">0</h2></div>
+            <div class="stat-box"><p>PAIRS</p><h2 id="pairs">0/8</h2></div>
+            <div class="stat-box"><p>STATUS</p><h2 id="status">Playing</h2></div>
+        </div>
+
+        <div class="best-score" id="bestScore">🏆 Best Score: Not set</div>
+        <div class="game-board" id="gameBoard"></div>
+        <p class="message" id="message">Find all matching pairs!</p>
+    </section>
+
+</main>
+
+<!-- WIN / GAME OVER POPUP -->
+<div class="modal" id="resultModal" hidden>
+    <div class="modal-card">
+        <div class="result-icon" id="resultIcon">🏆</div>
+        <h2 id="resultTitle">YOU WIN!</h2>
+        <p id="resultMessage">Great job!</p>
+        <p class="reward" id="rewardText">🪙 +50 coins</p>
+
+        <div class="modal-actions">
+            <button class="next-btn" id="nextButton">NEXT GAME →</button>
+            <button class="primary-btn" id="restartButton" hidden>↻ RESTART GAME</button>
+            <button class="secondary-btn" id="homeButton">MAIN MENU</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+const startScreen = $("startScreen");
+const gameScreen = $("gameScreen");
+const startButton = $("startButton");
+const restartButton = $("restartButton");
+const nextButton = $("nextButton");
+const homeButton = $("homeButton");
+const resultModal = $("resultModal");
+const difficultySelect = $("difficulty");
+const gameBoard = $("gameBoard");
+
+const emojis = ["🍎", "🚀", "🐱", "🌈", "⚽", "🍕", "🎵", "🌟"];
+const timeLimits = { easy: 60, medium: 90, hard: 120 };
+
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false;
+let gameStarted = false;
+let gameOver = false;
+let moves = 0;
+let matchedPairs = 0;
+let timeLeft = 60;
+let timer = null;
+let coins = 0;
+let earnedThisGame = 0;
+
+try {
+    coins = Number(localStorage.getItem("memoryCoins") || 0);
+} catch (error) {
+    coins = 0;
+}
+
+function updateCoins() {
+    $("coins").textContent = coins;
+    try {
+        localStorage.setItem("memoryCoins", String(coins));
+    } catch (error) {
+        // Coins still work for the current session.
+    }
+}
+
+function awardCoins(amount) {
+    coins += amount;
+    earnedThisGame += amount;
+    updateCoins();
+}
+
+function shuffle(array) {
+    const result = [...array];
+
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+
+    return result;
+}
+
+function updateBestScore() {
+    let best = null;
+
+    try {
+        best = localStorage.getItem("memoryBest_" + difficultySelect.value);
+    } catch (error) {
+        best = null;
+    }
+
+    $("bestScore").textContent = best !== null
+        ? "🏆 Best Score: " + best + " moves"
+        : "🏆 Best Score: Not set";
+}
+
+function createBoard() {
+    gameBoard.innerHTML = "";
+
+    shuffle([...emojis, ...emojis]).forEach((emoji) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "memory-card";
+        card.textContent = "?";
+        card.dataset.emoji = emoji;
+        card.setAttribute("aria-label", "Hidden card");
+        card.addEventListener("click", () => flipCard(card));
+        gameBoard.appendChild(card);
+    });
+}
+
+function startGame() {
+    clearInterval(timer);
+    resultModal.hidden = true;
+    startScreen.hidden = true;
+    gameScreen.hidden = false;
+    difficultySelect.disabled = true;
+
+    firstCard = null;
+    secondCard = null;
+    lockBoard = false;
+    gameStarted = true;
+    gameOver = false;
+    moves = 0;
+    matchedPairs = 0;
+    earnedThisGame = 0;
+    timeLeft = timeLimits[difficultySelect.value];
+
+    $("time").textContent = timeLeft;
+    $("moves").textContent = "0";
+    $("pairs").textContent = "0/8";
+    $("status").textContent = "Playing";
+    $("message").textContent = "Find all matching pairs!";
+
+    updateBestScore();
+    createBoard();
+
+    timer = setInterval(() => {
+        timeLeft--;
+        $("time").textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            endGame(false);
+        }
+    }, 1000);
+}
+
+function flipCard(card) {
+    if (
+        !gameStarted ||
+        gameOver ||
+        lockBoard ||
+        card.classList.contains("flipped") ||
+        card.classList.contains("matched")
+    ) {
+        return;
+    }
+
+    card.classList.add("flipped");
+    card.textContent = card.dataset.emoji;
+    card.setAttribute("aria-label", card.dataset.emoji);
+
+    if (!firstCard) {
+        firstCard = card;
+        return;
+    }
+
+    secondCard = card;
+    moves++;
+    $("moves").textContent = moves;
+
+    if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+        firstCard.classList.add("matched");
+        secondCard.classList.add("matched");
+        firstCard.disabled = true;
+        secondCard.disabled = true;
+
+        matchedPairs++;
+        $("pairs").textContent = matchedPairs + "/8";
+
+        // Earn 5 coins for each matching pair.
+        awardCoins(5);
+        resetTurn();
+
+        if (matchedPairs === emojis.length) {
+            endGame(true);
+        }
+    } else {
+        lockBoard = true;
+
+        const cardA = firstCard;
+        const cardB = secondCard;
+
+        setTimeout(() => {
+            if (!gameOver) {
+                cardA.classList.remove("flipped");
+                cardB.classList.remove("flipped");
+                cardA.textContent = "?";
+                cardB.textContent = "?";
+                cardA.setAttribute("aria-label", "Hidden card");
+                cardB.setAttribute("aria-label", "Hidden card");
+            }
+
+            resetTurn();
+        }, 800);
+    }
+}
+
+function resetTurn() {
+    firstCard = null;
+    secondCard = null;
+    lockBoard = false;
+}
+
+function endGame(won) {
+    if (gameOver) return;
+
+    clearInterval(timer);
+    gameOver = true;
+    gameStarted = false;
+    lockBoard = true;
+    difficultySelect.disabled = false;
+
+    document.querySelectorAll(".memory-card").forEach((card) => {
+        card.disabled = true;
+    });
+
+    if (won) {
+        // Win bonus: 50 additional coins.
+        awardCoins(50);
+
+        $("status").textContent = "Won!";
+        $("resultIcon").textContent = "🏆";
+        $("resultTitle").textContent = "YOU WIN!";
+        $("resultMessage").textContent =
+            "Amazing! You matched every pair in " + moves + " moves.";
+        $("rewardText").textContent =
+            "🪙 +" + earnedThisGame + " coins earned!";
+
+        $("message").textContent = "Congratulations! You won!";
+
+        nextButton.hidden = false;
+        restartButton.hidden = true;
+
+        try {
+            const key = "memoryBest_" + difficultySelect.value;
+            const saved = localStorage.getItem(key);
+
+            if (saved === null || moves < Number(saved)) {
+                localStorage.setItem(key, String(moves));
+            }
+        } catch (error) {
+            // Best score saving may be unavailable in some browsers.
+        }
+
+        updateBestScore();
+    } else {
+        $("status").textContent = "Lost!";
+        $("resultIcon").textContent = "⏰";
+        $("resultTitle").textContent = "GAME OVER";
+        $("resultMessage").textContent =
+            "Time is up! You matched " + matchedPairs + " of 8 pairs.";
+        $("rewardText").textContent =
+            "🪙 +" + earnedThisGame + " coins earned";
+
+        $("message").textContent = "Time is up! Try again.";
+
+        nextButton.hidden = true;
+        restartButton.hidden = false;
+    }
+
+    resultModal.hidden = false;
+}
+
+startButton.addEventListener("click", startGame);
+restartButton.addEventListener("click", startGame);
+nextButton.addEventListener("click", startGame);
+
+homeButton.addEventListener("click", () => {
+    clearInterval(timer);
+    gameStarted = false;
+    gameOver = false;
+    resultModal.hidden = true;
+    gameScreen.hidden = true;
+    startScreen.hidden = false;
+    difficultySelect.disabled = false;
+    gameBoard.innerHTML = "";
+});
+
+difficultySelect.addEventListener("change", updateBestScore);
+
+updateCoins();
+updateBestScore();
+</script>
+</body>
+</html>
